@@ -129,6 +129,9 @@ class GoalController:
 
         return desired
 
+
+
+
     def normalize_half_pi(self, alpha):
         alpha = self.normalize_pi(alpha)
         if alpha > pi/2:
