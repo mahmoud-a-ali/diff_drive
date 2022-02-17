@@ -53,8 +53,10 @@ class GoToGoalNode:
 
         self.controller.set_max_linear_speed(rospy.get_param('~max_linear_speed', 0.2))
         self.controller.set_min_linear_speed(rospy.get_param('~min_linear_speed', 0))
+        
         self.controller.set_max_angular_speed(rospy.get_param('~max_angular_speed', 1.0))
         self.controller.set_min_angular_speed(rospy.get_param('~min_angular_speed', 0))
+        
         self.controller.set_max_linear_acceleration(rospy.get_param('~max_linear_acceleration', 0.1))
         self.controller.set_max_angular_acceleration(rospy.get_param('~max_angular_acceleration', 0.3))
 
@@ -138,6 +140,7 @@ class GoToGoalNode:
         self.action_client.wait_for_server()
         action_goal = GoToPoseGoal()
         action_goal.pose.pose = goal.pose
+        # print("goal.pose: ", goal.pose)
         self.action_client.send_goal(action_goal)
 
 
@@ -150,9 +153,9 @@ class GoToGoalNode:
         roll, pitch, yaw = euler_from_quaternion(q)
 
         angle_pose = pose.Pose()
-        angle_pose.x = 0#quaternion_pose.position.x
-        angle_pose.y = 0#quaternion_pose.position.y
-        angle_pose.theta = 0#yaw
+        angle_pose.x = quaternion_pose.position.x
+        angle_pose.y = quaternion_pose.position.y
+        angle_pose.theta = yaw
         return angle_pose
 
 
