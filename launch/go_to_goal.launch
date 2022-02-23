@@ -1,0 +1,51 @@
+<launch>
+    <!-- diff_derive param -->
+    <!-- <rosparam file="$(find fr_space_nav)/config/my_params.yaml" /> -->
+
+
+    <arg name="KP" default="50" />
+    <arg name="KA" default="250" />
+    <arg name="KB" default="-5.0" />
+    <arg name="rate" default="10" />
+    <arg name="forwardMovementOnly" default="True" />
+    <arg name="max_linear_speed" default="1.0" />
+    <arg name="min_linear_speed" default="-1.0" />
+    <arg name="max_angular_speed" default="1.5" />
+    <arg name="min_angular_speed" default="-1.5" />
+
+    <arg name="linear_tolerance" default="0.1" />
+    <arg name="angular_tolerance" default="0.02" />
+    <arg name="max_linear_acceleration" default="0.2" />
+    <arg name="max_angular_acceleration" default="0.5" />
+
+    <!-- topics  -->
+    <arg name="localization_topic" default="/ground_truth/state" />
+
+
+
+
+    <!-- pid for waypoint tracking -->
+    <node name="diff_drv_pid" pkg="diff_drive" type="diff_drive_go_to_goal"  output="screen">
+        <!-- <remap from="/odometry" to="$(arg localization_topic)"/> -->
+        <param name="KP" value="KP" />
+        <param name="KA" value="KA" />
+        <param name="KB" value="KB" />
+        <param name="rate" value="$(arg rate)" />
+        <param name="forwardMovementOnly" value="$(arg forwardMovementOnly)" />
+        <param name="max_linear_speed" value="$(arg max_linear_speed)" />
+        <param name="min_linear_speed" value="$(arg min_linear_speed)" />
+        <param name="max_angular_speed" value="$(arg max_angular_speed)" />
+        <param name="min_angular_speed" value="$(arg min_angular_speed)" />
+
+        <param name="linear_tolerance" value="$(arg linear_tolerance)" />
+        <param name="angular_tolerance" value="$(arg angular_tolerance)" />
+        <param name="max_linear_acceleration" value="$(arg max_linear_acceleration" />
+        <param name="max_angular_acceleration" value="$(arg max_angular_acceleration)" /> 
+
+    </node>
+
+
+
+</launch>
+
+
