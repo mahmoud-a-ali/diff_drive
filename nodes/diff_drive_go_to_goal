@@ -39,35 +39,37 @@ class GoToGoalNode:
 
         self.goal_achieved_pub = rospy.Publisher('goal_achieved', Bool, queue_size=1)
 
-        rate = rospy.get_param('~rate', 10.0)
+        rate = rospy.get_param('rate', 10.0)
+        print("\n\n\n\n\n ahahahahahahah")
+        print("to check param are updated. rate: ", rate)
         self.rate = rospy.Rate(rate)
         self.dT = 1 / rate
 
-        self.kP = rospy.get_param('~kP', 4.0) #3.0
-        self.kA = rospy.get_param('~kA', 5.0) #8.0
-        self.kB = rospy.get_param('~kB', -1.5) #-1.5
+        self.kP = rospy.get_param('kP', 50.0) #3.0   
+        self.kA = rospy.get_param('kA', 250.0) #8.0 
+        self.kB = rospy.get_param('kB', -5.0) #-1.5 
         self.controller.set_constants(self.kP, self.kA, self.kB)
         # Kp and Ka must be positive, Kb must be negative, and Ka must be greater than Kp
         # robust convergence: Ka - 5/3*Kb - 2/pi*Kp must be greater than zero
+        #(4.0, 5.0, -1.5) are best till now for structured
 
+        self.controller.set_linear_tolerance(rospy.get_param('linear_tolerance', 0.05))
+        self.controller.set_angular_tolerance(rospy.get_param('angular_tolerance', 3/180*pi))
 
-        self.controller.set_linear_tolerance(rospy.get_param('~linear_tolerance', 0.05))
-        self.controller.set_angular_tolerance(rospy.get_param('~angular_tolerance', 3/180*pi))
-
-        self.controller.set_max_linear_speed(rospy.get_param('~max_linear_speed', 0.6)) #0.6
-        self.controller.set_min_linear_speed(rospy.get_param('~min_linear_speed', 0))
+        self.controller.set_max_linear_speed(rospy.get_param('max_linear_speed', 1.0)) #0.6
+        self.controller.set_min_linear_speed(rospy.get_param('min_linear_speed', 0))
         
-        self.controller.set_max_angular_speed(rospy.get_param('~max_angular_speed', 1.0)) #1.0
-        self.controller.set_min_angular_speed(rospy.get_param('~min_angular_speed', 0))
+        self.controller.set_max_angular_speed(rospy.get_param('max_angular_speed', 1.5)) #1.0
+        self.controller.set_min_angular_speed(rospy.get_param('min_angular_speed', 0))
         
-        self.controller.set_max_linear_acceleration(rospy.get_param('~max_linear_acceleration', 0.1))
-        self.controller.set_max_angular_acceleration(rospy.get_param('~max_angular_acceleration', 0.3))
+        self.controller.set_max_linear_acceleration(rospy.get_param('max_linear_acceleration', 0.1))
+        self.controller.set_max_angular_acceleration(rospy.get_param('max_angular_acceleration', 0.3))
 
         # Set whether to allow movement backward. Backward movement is
         # safe if the robot can avoid obstacles while traveling in
         # reverse. We default to forward movement only since many
         # sensors are front-facing.
-        self.controller.set_forward_movement_only(rospy.get_param('~forwardMovementOnly', True))
+        self.controller.set_forward_movement_only(rospy.get_param('forwardMovementOnly', True))
 
         self.init_pose()
         self.goal = None
@@ -84,7 +86,7 @@ class GoToGoalNode:
             # Allow client to preempt the goal.
             if self.action_server.is_preempt_requested():
                 rospy.loginfo('Goal preempted')
-                self.send_velocity(0, 0)
+                # self.send_velocity(0, 0)
                 self.action_server.set_preempted()
                 success = False
                 break
