@@ -39,31 +39,60 @@ class GoToGoalNode:
 
         self.goal_achieved_pub = rospy.Publisher('goal_achieved', Bool, queue_size=1)
 
-        rate = rospy.get_param('rate', 10.0)
-        print("\n\n\n\n\n ahahahahahahah")
-        print("to check param are updated. rate: ", rate)
+        ### get parameters 
+        rate = rospy.get_param('/rate')
         self.rate = rospy.Rate(rate)
         self.dT = 1 / rate
+        self.kP = rospy.get_param('/KP') #3.0   
+        self.kA = rospy.get_param('/KA') #8.0 
+        self.kB = rospy.get_param('/KB') #-1.5 
 
-        self.kP = rospy.get_param('kP', 50.0) #3.0   
-        self.kA = rospy.get_param('kA', 250.0) #8.0 
-        self.kB = rospy.get_param('kB', -5.0) #-1.5 
+        self.linear_tolerance  = rospy.get_param('/linear_tolerance')
+        self.angular_tolerance =  rospy.get_param('/angular_tolerance')
+
+        self.max_linear_speed =  rospy.get_param('/max_linear_speed') 
+        self.min_linear_speed  = rospy.get_param('/min_linear_speed')
+        
+        self.max_angular_speed  = rospy.get_param('/max_angular_speed') 
+        self.min_angular_speed  = rospy.get_param('/min_angular_speed')
+
+        self.max_linear_acceleration =  rospy.get_param('/max_linear_acceleration') 
+        self.max_angular_acceleration = rospy.get_param('/max_angular_acceleration') 
+
+        print("\n\n\n\n\n ########## check if params are updated ########")
+        print("rate: ", rate)
+        print("KP  : ", self.kP)
+        print("KA  : ", self.kA)
+        print("KB  : ", self.kB)
+
+        print("linear_tolerance   : ", self.linear_tolerance )
+        print("angular_tolerance  : ", self.angular_tolerance)
+        print("max_linear_speed  : ", self.max_linear_speed)        
+        print("min_linear_speed  : ", self.min_linear_speed)
+        print("max_angular_speed  : ", self.max_angular_speed)        
+        print("min_angular_speed  : ", self.min_angular_speed)
+        print("max_linear_acceleration   : ", self.max_linear_acceleration )       
+        print("max_angular_acceleration  : ", self.max_angular_acceleration)
+        print("########################################")
+        
+
+
         self.controller.set_constants(self.kP, self.kA, self.kB)
         # Kp and Ka must be positive, Kb must be negative, and Ka must be greater than Kp
         # robust convergence: Ka - 5/3*Kb - 2/pi*Kp must be greater than zero
         #(4.0, 5.0, -1.5) are best till now for structured
 
-        self.controller.set_linear_tolerance(rospy.get_param('linear_tolerance', 0.05))
-        self.controller.set_angular_tolerance(rospy.get_param('angular_tolerance', 3/180*pi))
+        self.controller.set_linear_tolerance(self.linear_tolerance)
+        self.controller.set_angular_tolerance(self.angular_tolerance)
 
-        self.controller.set_max_linear_speed(rospy.get_param('max_linear_speed', 1.0)) #0.6
-        self.controller.set_min_linear_speed(rospy.get_param('min_linear_speed', 0))
+        self.controller.set_max_linear_speed(self.max_linear_speed) #0.6
+        self.controller.set_min_linear_speed(self.min_linear_speed)
         
-        self.controller.set_max_angular_speed(rospy.get_param('max_angular_speed', 1.5)) #1.0
-        self.controller.set_min_angular_speed(rospy.get_param('min_angular_speed', 0))
+        self.controller.set_max_angular_speed(self.max_angular_speed) #1.0
+        self.controller.set_min_angular_speed(self.min_angular_speed)
         
-        self.controller.set_max_linear_acceleration(rospy.get_param('max_linear_acceleration', 0.1))
-        self.controller.set_max_angular_acceleration(rospy.get_param('max_angular_acceleration', 0.3))
+        self.controller.set_max_linear_acceleration (self.max_linear_acceleration  )
+        self.controller.set_max_angular_acceleration(self.max_angular_acceleration)
 
         # Set whether to allow movement backward. Backward movement is
         # safe if the robot can avoid obstacles while traveling in
