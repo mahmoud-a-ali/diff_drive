@@ -41,6 +41,7 @@ class GoToGoalNode:
 
         ### get parameters 
         rate = rospy.get_param('/rate')
+        self.gp_nav_glbl = rospy.get_param('/gp_nav_glbl')
         self.rate = rospy.Rate(rate)
         self.dT = 1 / rate
         self.kP = rospy.get_param('/KP') #3.0   
@@ -61,6 +62,7 @@ class GoToGoalNode:
 
         print("\n\n\n\n\n ########## check if params are updated ########")
         print("rate: ", rate)
+        print("gp_nav_glbl: ", self.gp_nav_glbl)
         print("KP  : ", self.kP)
         print("KA  : ", self.kA)
         print("KB  : ", self.kB)
@@ -108,7 +110,7 @@ class GoToGoalNode:
 
     def on_execute(self, goal):
         self.goal = self.get_angle_pose(goal.pose.pose)
-        rospy.loginfo('Goal: (%f,%f,%f)', self.goal.x, self.goal.y, self.goal.theta)
+        rospy.loginfo('diff_drive:: Goal: (%f,%f,%f)', self.goal.x, self.goal.y, self.goal.theta)
 
         success = True
         while not rospy.is_shutdown() and self.goal is not None:
@@ -131,6 +133,7 @@ class GoToGoalNode:
         self.pose.x = 0
         self.pose.y = 0
         self.pose.theta = 0
+
 
     def publish(self):
         if self.controller.at_goal(self.pose, self.goal):
@@ -167,10 +170,15 @@ class GoToGoalNode:
         self.twist_pub.publish(twist)
 
     def on_odometry(self, newPose):
-        # print("on_odometry .... ")
-        self.pose = self.get_angle_pose(newPose.pose.pose)
+        # print("\n\n>>>>>>>>>>>>>> on_odometry <<<<<<<<<<<<< ")
+        self.newPose = newPose # make the on_goal update current pose, not the on_odom
+        #self.pose = self.get_angle_pose(newPose.pose.pose)
+
 
     def on_goal(self, goal):
+        # print("\n\n>>>>>>>>>>>>>> on_goal <<<<<<<<<<<<< ")
+        if self.gp_nav_glbl:
+            self.pose = self.get_angle_pose(self.newPose.pose.pose) #update robot location with same frequancy as goal
         self.action_client.wait_for_server()
         action_goal = GoToPoseGoal()
         action_goal.pose.pose = goal.pose
